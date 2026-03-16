@@ -90,6 +90,7 @@
 #include "material/uniaxial/concrete/TDConcreteBase.h"
 #include "material/uniaxial/concrete/ACICreepShrinkageParameters.h"
 #include "material/uniaxial/concrete/ACICreepSteps.h"
+#include "material/uniaxial/concrete/ACICreepShrinkageStrains.h"
 
 namespace XC {
 
@@ -101,10 +102,7 @@ class TDConcrete : public TDConcreteBase
     ACICreepShrinkageParameters creepShrinkageParameters; //!< Creep and shrinkage parameters.
     
     //Added by AMK:
-    double eps_cr; //!< Creep strain.
-    double eps_sh; //!< Shrinkage strain.
-    double epsP_cr; //!< Commited creep strain
-    double epsP_sh; //!< Commited shrinkage strain. 
+    ACICreepShrinkageStrains creepShrinkageStrains;
     double phi_i;
     
     ACICreepSteps creepSteps;
@@ -128,10 +126,14 @@ class TDConcrete : public TDConcreteBase
     double setStress(double strain, double &stiff); //Added by AMK
     double getPHI_i(void) const; //Added by AMK      
     double getCreep(void) const; //Added by AMK
+    double getMech(void) const; //Added by AMK
     double setPhi(double time, double tp) const; //Added by AMK
     double setShrink(double time); //Added by AMK
     double getShrink(void) const; //Added by AMK
 
+    double getStrain(void) const
+      { return creepShrinkageStrains.getStrain(); }
+    
     void setCreepShrinkageParameters(const ACICreepShrinkageParameters &);
     const ACICreepShrinkageParameters &getCreepShrinkageParameters(void) const;
     

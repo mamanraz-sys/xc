@@ -60,15 +60,7 @@ void XC::TDConcreteMC10Base::setup_parameters(void)
     TDConcreteBase::setup_parameters();
 
     //ntosic: SPLIT INTO BASIC AND DRYING!
-    eps_crb = 0.0; //Added by ntosic
-    eps_crd = 0.0; //Added by ntosic
-    eps_shb = 0.0; //Added by ntosic
-    eps_shd = 0.0; //Added by ntosic
-    epsP_crb = 0.0; //Added by ntosic
-    epsP_crd = 0.0; //Added by ntosic
-    epsP_shb = 0.0; //Added by ntosic
-    epsP_shd = 0.0; //Added by ntosic
-    epsP_m = 0.0; //Added by AMK
+    creepShrinkageStrains.setup_parameters(this->Ec); //Added by AMK
 	
     //Change inputs into the proper sign convention: ntosic: changed
     creepShrinkageParameters.setup_parameters();
@@ -91,8 +83,10 @@ XC::TDConcreteMC10Base::TDConcreteMC10Base(int tag, int classTag)
 //! @param _age: analysis time at initiation of drying (in days).
 //! @param _tcast: analysis time corresponding to concrete casting in days (note: concrete will not be able to take on loads until the age of 2 days).
 XC::TDConcreteMC10Base::TDConcreteMC10Base(int tag, int classTag, double _fc, double _ft, double _Ets, double _Ec, double _Ecm, double _beta, double _age, double _tcast, const MC10CreepShrinkageParameters &csp)
-  : TDConcreteBase(tag, classTag, _fc, _ft, _Ets, _Ec, _beta, _age, _tcast),
-    Ecm(_Ecm), creepShrinkageParameters(csp)
+  : TDConcreteBase(tag, classTag, _fc, _ft, _Ets, _Ec, _beta),
+    Ecm(_Ecm), 
+    creepShrinkageStrains(_age, _tcast, _Ec),
+    creepShrinkageParameters(csp)
   {
     setup_parameters();
   }
@@ -127,7 +121,7 @@ double XC::TDConcreteMC10Base::setShrinkBasic(double time)
 
 //ntosic
 double XC::TDConcreteMC10Base::setShrinkDrying(double time)
-{ return creepShrinkageParameters.getShrinkDrying(this->age, time); }
+  { return creepShrinkageParameters.getShrinkDrying(this->creepShrinkageStrains.getAge(), time); }
 
 //ntosic
 double XC::TDConcreteMC10Base::getPHIB_i(void) const
@@ -136,19 +130,6 @@ double XC::TDConcreteMC10Base::getPHIB_i(void) const
 double XC::TDConcreteMC10Base::getPHID_i(void) const
   { return phid_i; }
 
-
-//ntosic
-double XC::TDConcreteMC10Base::getCreepBasic(void) const
-  { return eps_crb; }
-//ntosic
-double XC::TDConcreteMC10Base::getCreepDrying(void) const
-  { return eps_crd; }
-//ntosic
-double XC::TDConcreteMC10Base::getShrinkBasic(void) const
-  { return eps_shb; }
-//ntosic
-double XC::TDConcreteMC10Base::getShrinkDrying(void) const
-  { return eps_shd; }
 
 //ntosic
 //! @brief Return the creep occurring in a sealed (no drying) specimen,
@@ -172,12 +153,7 @@ double XC::TDConcreteMC10Base::setCreepDryingStrain(double time, double stress)
 
 int XC::TDConcreteMC10Base::revertToLastCommit(void)
   {
-    eps_total = epsP_total; //Added by AMK;
-    eps_shb = epsP_shb; //ntosic
-    eps_shd = epsP_shd; //ntosic
-    eps_crb = epsP_crb; //ntosic
-    eps_crd = epsP_crd; //ntosic
-    eps_m = epsP_m;  
+    this->creepShrinkageStrains.revert_to_last_commit();
 
     hstv= hstvP;
     return 0;
@@ -185,6 +161,8 @@ int XC::TDConcreteMC10Base::revertToLastCommit(void)
 
 int XC::TDConcreteMC10Base::revertToStart(void)
   {
+    this->creepShrinkageStrains.revert_to_start(this->Ec);
+    
     hstvP.revertToStart(Ec);
 
     hstv.setup_parameters(Ec);
@@ -200,6 +178,7 @@ int XC::TDConcreteMC10Base::sendData(Communicator &comm)
     int res= TDConcreteBase::sendData(comm);
     res+= comm.sendDouble(Ecm,getDbTagData(),CommMetaData(4));
     res+= comm.sendMovable(creepShrinkageParameters, getDbTagData(),CommMetaData(5));
+    res+= comm.sendMovable(creepShrinkageStrains, getDbTagData(),CommMetaData(6));
     return res;
   }
 
@@ -209,6 +188,7 @@ int XC::TDConcreteMC10Base::recvData(const Communicator &comm)
     int res= TDConcreteBase::recvData(comm);
     res+= comm.receiveDouble(Ecm,getDbTagData(),CommMetaData(4));
     res+= comm.receiveMovable(creepShrinkageParameters, getDbTagData(),CommMetaData(5));
+    res+= comm.receiveMovable(creepShrinkageStrains, getDbTagData(),CommMetaData(6));
     return res;
   }
 

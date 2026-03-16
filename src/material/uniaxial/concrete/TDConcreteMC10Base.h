@@ -51,6 +51,7 @@
 #include "material/uniaxial/concrete/TDConcreteBase.h"
 #include "material/uniaxial/concrete/MC10CreepSteps.h"
 #include "material/uniaxial/concrete/MC10CreepShrinkageParameters.h"
+#include "material/uniaxial/concrete/MC10CreepShrinkageStrains.h"
 
 namespace XC {
   
@@ -63,15 +64,7 @@ class TDConcreteMC10Base : public TDConcreteBase
     // hstv : Concrete HISTORY VARIABLES  current step
 	
     //Added by AMK:
-    double eps_crb; //!< trial basic creep strain (ntosic).
-    double eps_crd; //!< trial drying creep strain (ntosic).
-    double eps_shb; //!< trial basic shrinkage strain (ntosic).
-    double eps_shd; //!< trial drying shrinkage strain (ntosic).
-    
-    double epsP_crb; //!< commited basic creep strain (ntosic).
-    double epsP_crd; //!< commited drying creep strain (ntosic).
-    double epsP_shb; //!< commited basic shrinkage strain (ntosic).
-    double epsP_shd; //!< commited drying shrinkage strain (ntosic).
+    MC10CreepShrinkageStrains creepShrinkageStrains;
     
     double phib_i; //!< basic phi coefficient (ntosic).
     double phid_i; //!< drying phi coefficient (ntosic).
@@ -102,6 +95,9 @@ class TDConcreteMC10Base : public TDConcreteBase
     double setShrinkDrying(double time); //Added by AMK //ntosic: split into basic and drying shrinkage
     double getShrinkBasic(void) const; //Added by AMK //ntosic: split into basic and drying
     double getShrinkDrying(void) const; //Added by AMK //ntosic: split into basic and drying
+    
+    double getStrain(void) const
+      { return creepShrinkageStrains.getStrain(); }
     
     double setCreepBasicStrain(double time, double stress); //Added by AMK //ntosic: split into basic and drying creep
     double setCreepDryingStrain(double time, double stress); //Added by AMK //ntosic: split into basic and drying creep

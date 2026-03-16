@@ -95,7 +95,6 @@ XC::CreepMaterial::CreepMaterial(int tag, double _fc, double _fcu, double _epscu
     hstvP.setup_parameters(_Ec);
     hstv.setup_parameters(_Ec);
 
-    //Change inputs into the proper sign convention:
     creepShrinkageParameters.setup_parameters();
 
     creepSteps.initTime(getCurrentTime());

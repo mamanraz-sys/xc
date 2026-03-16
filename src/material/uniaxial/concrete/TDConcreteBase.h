@@ -64,10 +64,8 @@ class TDConcreteBase : public RawConcrete
     double Ets; //!< tension stiffening slope                : mp(7)
     double Ec;  //Concrete stiffness, Added by AMK
     // double EcT; //Time dependent stiffness
-    double age; //!< concrete age at first loading, Added by AMK
     //double sigCr; //!< stress that creep curve is based on
     double beta; //!< tension softening parameter.
-    double tcast; //!< the analysis time corresponding to concrete casting in days
 
     // hstvP : Concerete HISTORY VARIABLES last committed step
     CreepConcreteHistoryVars hstvP; //!< = values at previous converged step
@@ -76,27 +74,15 @@ class TDConcreteBase : public RawConcrete
     CreepConcreteHistoryVars hstv; //!< = values at current step (trial values)
 	
     //Added by AMK:
-    double t_load; //loaded time
-    double epsInit;
-    double sigInit;
-    double eps_m; //!< Mechanical strain.
-    double epsP_m; //!< Commited mechanical strain.
-    double eps_total; // Total strain.
-    double epsP_total; // Commited total strain.
-    double t; //Time
-    double Et;
-    int crack_flag;
-    int crackP_flag;
     int iter; //Iteration number
     
     void Compr_Envlp(double epsc, double &sigc, double &Ect);
   protected:
-    void commit_eps_and_sig_init(int creep_steps_count);
     int sendData(Communicator &);
     int recvData(const Communicator &);    
   public:
     TDConcreteBase(int tag, int classTag);
-    TDConcreteBase(int tag, int classTag, double _fc, double _ft, double _Ets, double _Ec, double _beta, double _age, double _tcast);
+    TDConcreteBase(int tag, int classTag, double _fc, double _ft, double _Ets, double _Ec, double _beta);
     void setup_parameters(void);
 
     double getInitialTangent(void) const;
@@ -104,24 +90,16 @@ class TDConcreteBase : public RawConcrete
     bool needsUpdate(void) const;
 
     double getCurrentTime(void) const; //Added by AMK
-    double getStrain(void) const;
     double getStress(void) const;
     double getTangent(void) const;
-    double getMech(void) const; //Added by AMK
     void setFt(const double &);
     double getFt(void) const;
     void setEts(const double &);
     double getEts(void) const;
     void setEc(const double &);
     double getEc(void) const;
-    void setEt(const double &);
-    double getEt(void) const;
     void setBeta(const double &);
     double getBeta(void) const;
-    void setAge(const double &);
-    double getAge(void) const;
-    void setTCast(const double &);
-    double getTCast(void) const;
     
     int sendSelf(Communicator &);  
     int recvSelf(const Communicator &);

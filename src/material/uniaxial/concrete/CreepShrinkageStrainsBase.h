@@ -82,16 +82,38 @@ class CreepShrinkageStrainsBase: public CommandEntity, public MovableObject
     
     double getMech(void) const // Added by AMK
       { return eps_m; }
+    
+    //! @brief Assign current concrete stiffness.
+    void setEt(const double &d)
+      { Et= d; }
+      
+    //! @brief Returns current concrete stiffness.
+    double getEt(void) const
+      { return Et; }
 
+    void setAge(const double &d)
+      { this->age= d; }
     double getAge(void) const
       { return this->age; }
     
+    void setTCast(const double &d)
+      { tcast= d; }
+    double getTCast(void) const
+      { return tcast; }
+    
     double getCastingAge(const double &t) const
       { return t-this->tcast; }
+    
+    void setCrackFlag(const int &i)
+      { crack_flag= i; }
+    int getCrackFlag(void) const
+      { return crack_flag; }
+    void revertCrackFlag(void)
+      { crack_flag = crackP_flag; }
 
     int commit_state(const int &count, const double &hstvP_sig, const double &currentTime);
     int revert_to_last_commit(void);    
-    int revert_to_start(const double &_Et);        
+    int revert_to_start(const double &_Et);
 
     int sendSelf(Communicator &);  
     int recvSelf(const Communicator &);
