@@ -130,7 +130,28 @@ class TDConcrete : public TDConcreteBase
     double setPhi(double time, double tp) const; //Added by AMK
     double setShrink(double time); //Added by AMK
     double getShrink(void) const; //Added by AMK
+    
+    //! @brief Assign current concrete stiffness.
+    virtual void setEt(const double &d)
+      { this->creepShrinkageStrains.setEt(d); }
+    //! @brief Returns current concrete stiffness.
+    virtual double getEt(void) const
+      { return this->creepShrinkageStrains.getEt(); }
 
+    //! @brief Assign the concrete age at first loading.
+    void setAge(const double &d)
+      { this->creepShrinkageStrains.setAge(d); }
+    //! @brief Return the concrete age at first loading.
+    double getAge(void) const
+      { return this->creepShrinkageStrains.getAge(); }
+    
+    //! @brief Assign the analysis time corresponding to concrete casting in days.
+    void setTCast(const double &d)
+      { this->creepShrinkageStrains.setTCast(d); }
+    //! @brief Return the analysis time corresponding to concrete casting in days.
+    double getTCast(void) const
+      { return this->creepShrinkageStrains.getTCast(); }
+ 
     double getStrain(void) const
       { return creepShrinkageStrains.getStrain(); }
     

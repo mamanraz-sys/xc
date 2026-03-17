@@ -101,6 +101,21 @@ class TDConcreteBase : public RawConcrete
     void setBeta(const double &);
     double getBeta(void) const;
     
+    //! @brief Assign current concrete stiffness.
+    virtual void setEt(const double &)= 0;
+    //! @brief Returns current concrete stiffness.
+    virtual double getEt(void) const= 0;
+    
+    //! @brief Assign the concrete age at first loading.
+    virtual void setAge(const double &)= 0;
+    //! @brief Return the concrete age at first loading.
+    virtual double getAge(void) const= 0;
+    
+    //! @brief Assign the analysis time corresponding to concrete casting in days.
+    virtual void setTCast(const double &)= 0;
+    //! @brief Return the analysis time corresponding to concrete casting in days.
+    virtual double getTCast(void) const= 0;
+    
     int sendSelf(Communicator &);  
     int recvSelf(const Communicator &);
     

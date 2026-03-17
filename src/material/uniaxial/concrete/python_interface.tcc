@@ -52,9 +52,9 @@ class_<XC::TDConcreteBase, bases<XC::RawConcrete>, boost::noncopyable >("TDConcr
   .add_property("Ets", &XC::TDConcreteBase::getEts,  &XC::TDConcreteBase::setEts,"tension softening stiffness (absolute value) (slope of the linear tension softening branch).")
   .add_property("Ec", &XC::TDConcreteBase::getEc,  &XC::TDConcreteBase::setEc,"concrete stiffness.")
   .add_property("Et", &XC::TDConcreteBase::getEt,  &XC::TDConcreteBase::setEt,"concrete current stiffness.")
-  .add_property("age", &XC::TDConcreteBase::getAge,  &XC::TDConcreteBase::setAge, "concrete age.")
-  .add_property("beta", &XC::TDConcreteBase::getBeta,  &XC::TDConcreteBase::setBeta,"concrete beta parameter.")
-  .add_property("tcast", &XC::TDConcreteBase::getTCast,  &XC::TDConcreteBase::setTCast,"tcast.")
+  .add_property("beta", &XC::TDConcreteBase::getBeta,  &XC::TDConcreteBase::setBeta,"concrete tension softening parameter.")
+  .add_property("age", &XC::TDConcreteBase::getAge,  &XC::TDConcreteBase::setAge, "Concrete age at first loading.")
+  .add_property("tcast", &XC::TDConcreteBase::getTCast,  &XC::TDConcreteBase::setTCast,"Analysis time corresponding to concrete casting in days.")
   // .def("setCreepOn", &XC::TDConcreteBase::setCreepOn,"Activate creep.").staticmethod("setCreepOn")
   // .def("setCreepOff", &XC::TDConcreteBase::setCreepOff,"Deactivate creep.").staticmethod("setCreepOff")
   // .def("isCreepOn", &XC::TDConcreteBase::isCreepOn,"Return true if creep is activen.").staticmethod("isCreepOn")
@@ -74,6 +74,13 @@ class_<XC::ACICreepShrinkageParameters, bases<CommandEntity> >("ACICreepShrinkag
   .add_property("epscrd", &XC::ACICreepShrinkageParameters::getCreepDParameter,  &XC::ACICreepShrinkageParameters::setCreepDParameter,"creep d parameter.")
   ;
 
+class_<XC::TDConcrete, bases<XC::TDConcreteBase>, boost::noncopyable >("TDConcrete", no_init)
+  .def("setup", &XC::TDConcrete::setup_parameters,"Sets initial values for the concrete parameters; call after modifying any of the material properties.")
+  .def("getCreepShrinkageParameters", make_function(&XC::TDConcrete::getCreepShrinkageParameters, return_internal_reference<>()))
+  .def("setCreepShrinkageParameters",&XC::TDConcrete::setCreepShrinkageParameters)
+  ;
+
+// Model Code 2010.
 class_<XC::MC10CreepShrinkageParameters, bases<CommandEntity> >("MC10CreepShrinkageParameters")
   .def(init<const double &, const double &, const double &, const double &, const double &, const double &, const double &, const double &, const double &>())
   .def(init<XC::MC10CreepShrinkageParameters>())
@@ -91,12 +98,6 @@ class_<XC::MC10CreepShrinkageParameters, bases<CommandEntity> >("MC10CreepShrink
   .add_property("cem", &XC::MC10CreepShrinkageParameters::getCem, &XC::MC10CreepShrinkageParameters::setCem, "coefficient dependent on the type of cement: –1 for 32.5N, 0 for 32.5R and 42.5N and 1 for 42.5R, 52.5N and 52.5R.")
   ;
 
-class_<XC::TDConcrete, bases<XC::TDConcreteBase>, boost::noncopyable >("TDConcrete", no_init)
-  .def("setup", &XC::TDConcrete::setup_parameters,"Sets initial values for the concrete parameters; call after modifying any of the material properties.")
-  .def("getCreepShrinkageParameters", make_function(&XC::TDConcrete::getCreepShrinkageParameters, return_internal_reference<>()))
-  .def("setCreepShrinkageParameters",&XC::TDConcrete::setCreepShrinkageParameters)
-
-  ;
 
 class_<XC::TDConcreteMC10Base, bases<XC::TDConcreteBase>, boost::noncopyable >("TDConcreteMC10Base", no_init)
   .add_property("Ecm", &XC::TDConcreteMC10Base::getEcm, &XC::TDConcreteMC10Base::setEcm, "28-day modulus, necessary for normalizing creep coefficient.")

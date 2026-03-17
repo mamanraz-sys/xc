@@ -91,13 +91,17 @@ class CreepShrinkageStrainsBase: public CommandEntity, public MovableObject
     double getEt(void) const
       { return Et; }
 
+    //! @brief Assign the concrete age at first loading.
     void setAge(const double &d)
       { this->age= d; }
+    //! @brief Return  the concrete age at first loading.
     double getAge(void) const
       { return this->age; }
     
+    //! @brief Assign the analysis time corresponding to concrete casting in days.
     void setTCast(const double &d)
       { tcast= d; }
+    //! @brief Return the analysis time corresponding to concrete casting in days.
     double getTCast(void) const
       { return tcast; }
     
