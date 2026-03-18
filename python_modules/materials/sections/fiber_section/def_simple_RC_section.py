@@ -1235,7 +1235,7 @@ class RCSectionBase(object):
                     ("k" for characteristic diagram, "d" for design diagram)
          '''
         self.defShearResponse2d(preprocessor)
-        self.defSectionGeometry(preprocessor,matDiagType)
+        self.defSectionGeometry(preprocessor,matDiagType, twoDimensional= True)
         return self.defFiberSection2d(preprocessor)
 
     def defFiberSection(self, preprocessor):
@@ -1270,7 +1270,7 @@ class RCSectionBase(object):
                     ("k" for characteristic diagram, "d" for design diagram)
         '''
         self.defShearResponse(preprocessor= preprocessor)
-        self.defSectionGeometry(preprocessor= preprocessor, matDiagType= matDiagType)
+        self.defSectionGeometry(preprocessor= preprocessor, matDiagType= matDiagType, twoDimensional= False)
         return self.defFiberSection(preprocessor= preprocessor)
         
     def clearRCSection(self):
@@ -1894,12 +1894,17 @@ class BasicRectangularRCSection(RCSectionBase, section_properties.RectangularSec
         vertices= [pMin, geom.Pos2d(pMax.x, pMin.y), pMax, geom.Pos2d(pMin.x, pMax.y), pMin]
         return vertices
 
-    def defConcreteRegion(self):
+    def defConcreteRegion(self, twoDimensional= False):
         ''' Define a rectangular region filled with concrete.
+
+        :param twoDimensional: if true set only one division on IJ direction.
         '''
         regions= self.geomSection.getRegions
         rg= regions.newQuadRegion(self.fiberSectionParameters.concrDiagName)
-        rg.nDivIJ= self.fiberSectionParameters.nDivIJ
+        if(twoDimensional):
+            rg.nDivIJ= 1
+        else:
+            rg.nDivIJ= self.fiberSectionParameters.nDivIJ
         rg.nDivJK= self.fiberSectionParameters.nDivJK
         rg.pMin= geom.Pos2d(-self.b/2,-self.h/2)
         rg.pMax= geom.Pos2d(self.b/2,self.h/2)
@@ -2465,7 +2470,8 @@ class RCRectangularSection(BasicRectangularRCSection):
         return retval
 
     def computeRebarPositions(self):
-        ''' Compute the positions of the reinforcement.'''
+        ''' Compute the positions of the reinforcement.
+        '''
         # Placement of the negative reinforcement.
         negPoints= list()
         halfDepth= self.h/2.0
@@ -2512,17 +2518,18 @@ class RCRectangularSection(BasicRectangularRCSection):
                 retval+= self.positvRebarRows.getAs()
         return retval
             
-    def defSectionGeometry(self, preprocessor, matDiagType):
+    def defSectionGeometry(self, preprocessor, matDiagType, twoDimensional= False):
         '''
         Define the XC section geometry object for a reinforced concrete section 
 
         :param preprocessor: preprocessor of the finite element problem.
         :param matDiagType: type of stress-strain diagram 
                             ("k" for characteristic diagram, "d" for design diagram)
+        :param twoDimensional: if true set only one division on IJ direction.
         '''
         self.defDiagrams(preprocessor, matDiagType)
         self.geomSection= preprocessor.getMaterialHandler.newSectionGeometry(self.gmSectionName())
-        self.defConcreteRegion()
+        self.defConcreteRegion(twoDimensional= twoDimensional)
         reinforcement= self.geomSection.getReinfLayers
         # Placement of the negative reinforcement.
         ## Compute positions.
