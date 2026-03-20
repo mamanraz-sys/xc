@@ -26,17 +26,17 @@
 // If not, see <http://www.gnu.org/licenses/>.
 //----------------------------------------------------------------------------
 
-#ifndef ACICreepShrinkageStrains_h
-#define ACICreepShrinkageStrains_h
+#ifndef ACICreepShrinkageState_h
+#define ACICreepShrinkageState_h
 
-#include "material/uniaxial/concrete/CreepShrinkageStrainsBase.h"
+#include "material/uniaxial/concrete/CreepShrinkageStateBase.h"
 
 namespace XC {
 
 //! @brief Class that groups the variables that keep track of the
 //! creep and shrinkage strains according to the ACI code.
 //! @ingroup MatUnx
-class ACICreepShrinkageStrains: public CreepShrinkageStrainsBase
+class ACICreepShrinkageState: public CreepShrinkageStateBase
   {
   private:
 
@@ -51,8 +51,8 @@ class ACICreepShrinkageStrains: public CreepShrinkageStrainsBase
     int sendData(Communicator &);
     int recvData(const Communicator &);
   public:
-    ACICreepShrinkageStrains(void);
-    ACICreepShrinkageStrains(const double &_age, const double &_tcast, const double &_Et);
+    ACICreepShrinkageState(void);
+    ACICreepShrinkageState(const double &_age, const double &_tcast, const double &_Et);
     void setup_parameters(const double &);
 
     
@@ -67,7 +67,7 @@ class ACICreepShrinkageStrains: public CreepShrinkageStrainsBase
     
     void set_eps_cr_sh_m_total(const double &_eps_cr, const double &_eps_sh, const double &_eps_m, const double &_eps_total)
       {
-	CreepShrinkageStrainsBase::set_eps_m_total(_eps_m, _eps_total);
+	CreepShrinkageStateBase::set_eps_m_total(_eps_m, _eps_total);
 	this->eps_cr= _eps_cr; // Creep strain.
 	this->eps_sh= eps_sh; // Shrinkage strain.
       }

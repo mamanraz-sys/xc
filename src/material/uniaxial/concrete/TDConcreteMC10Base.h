@@ -51,7 +51,7 @@
 #include "material/uniaxial/concrete/TDConcreteBase.h"
 #include "material/uniaxial/concrete/MC10CreepSteps.h"
 #include "material/uniaxial/concrete/MC10CreepShrinkageParameters.h"
-#include "material/uniaxial/concrete/MC10CreepShrinkageStrains.h"
+#include "material/uniaxial/concrete/MC10CreepShrinkageState.h"
 
 namespace XC {
   
@@ -64,7 +64,7 @@ class TDConcreteMC10Base : public TDConcreteBase
     // hstv : Concrete HISTORY VARIABLES  current step
 	
     //Added by AMK:
-    MC10CreepShrinkageStrains creepShrinkageStrains;
+    MC10CreepShrinkageState creepShrinkageStrains;
     
     double phib_i; //!< basic phi coefficient (ntosic).
     double phid_i; //!< drying phi coefficient (ntosic).

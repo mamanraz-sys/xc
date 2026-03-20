@@ -26,17 +26,17 @@
 // If not, see <http://www.gnu.org/licenses/>.
 //----------------------------------------------------------------------------
 
-#ifndef MC10CreepShrinkageStrains_h
-#define MC10CreepShrinkageStrains_h
+#ifndef MC10CreepShrinkageState_h
+#define MC10CreepShrinkageState_h
 
-#include "material/uniaxial/concrete/CreepShrinkageStrainsBase.h"
+#include "material/uniaxial/concrete/CreepShrinkageStateBase.h"
 
 namespace XC {
 
 //! @brief Class that groups the variables that keep track of the
 //! creep and shrinkage strains according to the Model Code 1010.
 //! @ingroup MatUnx
-class MC10CreepShrinkageStrains: public CreepShrinkageStrainsBase
+class MC10CreepShrinkageState: public CreepShrinkageStateBase
   {
   private:
 
@@ -55,8 +55,8 @@ class MC10CreepShrinkageStrains: public CreepShrinkageStrainsBase
     int sendData(Communicator &);
     int recvData(const Communicator &);
   public:
-    MC10CreepShrinkageStrains(void);
-    MC10CreepShrinkageStrains(const double &_age, const double &_tcast, const double &_Et);
+    MC10CreepShrinkageState(void);
+    MC10CreepShrinkageState(const double &_age, const double &_tcast, const double &_Et);
     void setup_parameters(const double &);
 
 
@@ -80,14 +80,14 @@ class MC10CreepShrinkageStrains: public CreepShrinkageStrainsBase
     
     void set_eps_cr_sh_m_total(const double &_eps_crb, const double &_eps_crd, const double &_eps_shb, const double &_eps_shd, const double &_eps_m, const double &_eps_total)
       {
-	CreepShrinkageStrainsBase::set_eps_m_total(_eps_m, _eps_total);
+	CreepShrinkageStateBase::set_eps_m_total(_eps_m, _eps_total);
 	this->eps_crb= _eps_crb; // Basic creep strain.
 	this->eps_crd= _eps_crd; // Drying creep strain.
 	this->eps_shb= _eps_shb; // Basic shrinkage strain.
 	this->eps_shd= _eps_shd; // Drying shrinkage strain.
       }
     void update_mech_strain(void)
-      { this->eps_m= this->eps_total - this->eps_crb - this->eps_crd - this->eps_shb - this->eps_shd; }
+      {	this->eps_m= this->eps_total - this->eps_crb - this->eps_crd - this->eps_shb - this->eps_shd; }
     
     void use_creep_shrinkage_from_last_commit(void)
       {

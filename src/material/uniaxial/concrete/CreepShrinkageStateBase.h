@@ -26,8 +26,8 @@
 // If not, see <http://www.gnu.org/licenses/>.
 //----------------------------------------------------------------------------
 
-#ifndef CreepShrinkageStrainsBase_h
-#define CreepShrinkageStrainsBase_h
+#ifndef CreepShrinkageStateBase_h
+#define CreepShrinkageStateBase_h
 
 #include "utility/kernel/CommandEntity.h"
 #include "utility/actor/actor/MovableObject.h"
@@ -37,7 +37,7 @@ namespace XC {
 //! @brief Base class that groups the variables that keep track of the
 //! creep and shrinkage strains.
 //! @ingroup MatUnx
-class CreepShrinkageStrainsBase: public CommandEntity, public MovableObject
+class CreepShrinkageStateBase: public CommandEntity, public MovableObject
   {
   protected:
 
@@ -64,8 +64,8 @@ class CreepShrinkageStrainsBase: public CommandEntity, public MovableObject
     int sendData(Communicator &);
     int recvData(const Communicator &);
   public:
-    CreepShrinkageStrainsBase(void);
-    CreepShrinkageStrainsBase(const double &_age, const double &_tcast, const double &_Et);
+    CreepShrinkageStateBase(void);
+    CreepShrinkageStateBase(const double &_age, const double &_tcast, const double &_Et);
     void setup_parameters(const double &);
 
     void set_eps_m_total(const double &_eps_m, const double &_eps_total)

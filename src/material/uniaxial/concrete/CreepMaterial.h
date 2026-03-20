@@ -71,7 +71,7 @@
 #include "material/uniaxial/concrete/ConcreteHistoryVars.h"
 #include "material/uniaxial/concrete/ACICreepShrinkageParameters.h"
 #include "material/uniaxial/concrete/ACICreepSteps.h"
-#include "material/uniaxial/concrete/ACICreepShrinkageStrains.h"
+#include "material/uniaxial/concrete/ACICreepShrinkageState.h"
 
 namespace XC {
 
@@ -87,7 +87,7 @@ class CreepMaterial: public EncapsulatedUniaxialMaterial
     // matpar : Concrete FIXED PROPERTIES
     //	double fcT;  //Time Dependent Strength
     double beta; //!< tension softening parameter.
-    ACICreepShrinkageStrains creepShrinkageStrains;
+    ACICreepShrinkageState creepShrinkageStrains;
     
     double phi_i; //!< Creep coefficient.
 

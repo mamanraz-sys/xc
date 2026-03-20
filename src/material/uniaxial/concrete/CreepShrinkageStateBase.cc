@@ -44,10 +44,10 @@
 **                                                                    **
 ** ****************************************************************** */
 
-#include "material/uniaxial/concrete/CreepShrinkageStrainsBase.h"
+#include "material/uniaxial/concrete/CreepShrinkageStateBase.h"
 #include "utility/utils/misc_utils/colormod.h"
 
-XC::CreepShrinkageStrainsBase::CreepShrinkageStrainsBase(void)
+XC::CreepShrinkageStateBase::CreepShrinkageStateBase(void)
   : CommandEntity(), MovableObject(0),
     age(0.0), tcast(0.0),
     epsInit(0.0), sigInit(0.0),
@@ -57,7 +57,7 @@ XC::CreepShrinkageStrainsBase::CreepShrinkageStrainsBase(void)
     crack_flag(0), crackP_flag(0)
   {}
 
-XC::CreepShrinkageStrainsBase::CreepShrinkageStrainsBase(const double &_age, const double &_tcast, const double &_Et)
+XC::CreepShrinkageStateBase::CreepShrinkageStateBase(const double &_age, const double &_tcast, const double &_Et)
   : CommandEntity(), MovableObject(0),
     age(_age), tcast(_tcast),
     epsInit(0.0), sigInit(0.0),
@@ -68,7 +68,7 @@ XC::CreepShrinkageStrainsBase::CreepShrinkageStrainsBase(const double &_age, con
   {}
 
 //! @brief Sets initial values for the concrete parameters.
-void XC::CreepShrinkageStrainsBase::setup_parameters(const double &_Et)
+void XC::CreepShrinkageStateBase::setup_parameters(const double &_Et)
   {
     this->epsP_m= 0.0;
 
@@ -83,7 +83,7 @@ void XC::CreepShrinkageStrainsBase::setup_parameters(const double &_Et)
     this->crackP_flag= 0; // Added by LP
   }
 
-void XC::CreepShrinkageStrainsBase::commit_eps_and_sig_init(const int &count, const double &hstvP_sig, const double &currentTime)
+void XC::CreepShrinkageStateBase::commit_eps_and_sig_init(const int &count, const double &hstvP_sig, const double &currentTime)
   {
     if(count==0)
       {
@@ -108,7 +108,7 @@ void XC::CreepShrinkageStrainsBase::commit_eps_and_sig_init(const int &count, co
       }
   }
 
-int XC::CreepShrinkageStrainsBase::commit_state(const int &count, const double &hstvP_sig, const double &currentTime)
+int XC::CreepShrinkageStateBase::commit_state(const int &count, const double &hstvP_sig, const double &currentTime)
   {
     //Added by AMK:
     epsP_total= eps_total; //Added by AMK;
@@ -129,7 +129,7 @@ int XC::CreepShrinkageStrainsBase::commit_state(const int &count, const double &
     return 0;
   }
 
-int XC::CreepShrinkageStrainsBase::revert_to_last_commit(void)
+int XC::CreepShrinkageStateBase::revert_to_last_commit(void)
   {
     eps_total= epsP_total; //Added by AMK;
     eps_m= epsP_m;  
@@ -138,14 +138,14 @@ int XC::CreepShrinkageStrainsBase::revert_to_last_commit(void)
     return 0;
   }
 
-int XC::CreepShrinkageStrainsBase::revert_to_start(const double &Et)
+int XC::CreepShrinkageStateBase::revert_to_start(const double &Et)
   {
     this->setup_parameters(Et);
     return 0;
   }
 
 //! @brief Send object members through the communicator argument.
-int XC::CreepShrinkageStrainsBase::sendData(Communicator &comm)
+int XC::CreepShrinkageStateBase::sendData(Communicator &comm)
   {
     int res= comm.sendDoubles(age, tcast, epsInit, sigInit, getDbTagData(),CommMetaData(1));
     res+= comm.sendDoubles(epsP_m, epsP_total, t, t_load, Et, getDbTagData(),CommMetaData(2));
@@ -153,7 +153,7 @@ int XC::CreepShrinkageStrainsBase::sendData(Communicator &comm)
     return res;
   }
 //! @brief Receives object members through the communicator argument.
-int XC::CreepShrinkageStrainsBase::recvData(const Communicator &comm)
+int XC::CreepShrinkageStateBase::recvData(const Communicator &comm)
   {
     int res= comm.receiveDoubles(age, tcast, epsInit, sigInit, getDbTagData(),CommMetaData(1));
     res+= comm.receiveDoubles(epsP_m, epsP_total, t, t_load, Et, getDbTagData(),CommMetaData(2));
@@ -162,7 +162,7 @@ int XC::CreepShrinkageStrainsBase::recvData(const Communicator &comm)
   }
 
 //! @brief Sends object through the communicator argument.
-int XC::CreepShrinkageStrainsBase::sendSelf(Communicator &comm)
+int XC::CreepShrinkageStateBase::sendSelf(Communicator &comm)
   {
     setDbTag(comm);
     const int dataTag= getDbTag();
@@ -178,7 +178,7 @@ int XC::CreepShrinkageStrainsBase::sendSelf(Communicator &comm)
   }
 
 //! @brief Receives object through the communicator argument.
-int XC::CreepShrinkageStrainsBase::recvSelf(const Communicator &comm)
+int XC::CreepShrinkageStateBase::recvSelf(const Communicator &comm)
   {
     inicComm(4);
     const int dataTag= getDbTag();
@@ -201,7 +201,7 @@ int XC::CreepShrinkageStrainsBase::recvSelf(const Communicator &comm)
   }
 
 
-void XC::CreepShrinkageStrainsBase::Print(std::ostream &s, int flag) const
+void XC::CreepShrinkageStateBase::Print(std::ostream &s, int flag) const
   {
     s << "age= " << this->age
       << " tcast= " << this->tcast

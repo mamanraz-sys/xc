@@ -90,7 +90,7 @@
 #include "material/uniaxial/concrete/TDConcreteBase.h"
 #include "material/uniaxial/concrete/ACICreepShrinkageParameters.h"
 #include "material/uniaxial/concrete/ACICreepSteps.h"
-#include "material/uniaxial/concrete/ACICreepShrinkageStrains.h"
+#include "material/uniaxial/concrete/ACICreepShrinkageState.h"
 
 namespace XC {
 
@@ -102,7 +102,7 @@ class TDConcrete : public TDConcreteBase
     ACICreepShrinkageParameters creepShrinkageParameters; //!< Creep and shrinkage parameters.
     
     //Added by AMK:
-    ACICreepShrinkageStrains creepShrinkageStrains;
+    ACICreepShrinkageState creepShrinkageStrains;
     double phi_i;
     
     ACICreepSteps creepSteps;

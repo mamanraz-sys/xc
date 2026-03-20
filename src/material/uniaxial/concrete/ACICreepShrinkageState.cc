@@ -25,90 +25,78 @@
 // If not, see <http://www.gnu.org/licenses/>.
 //----------------------------------------------------------------------------
                                                                         
-#include "material/uniaxial/concrete/MC10CreepShrinkageStrains.h"
+#include "material/uniaxial/concrete/ACICreepShrinkageState.h"
 #include "utility/utils/misc_utils/colormod.h"
 
-XC::MC10CreepShrinkageStrains::MC10CreepShrinkageStrains(void)
-  : CreepShrinkageStrainsBase(),
-    eps_crb(0.0), eps_crd(0.0),
-    eps_shb(0.0), eps_shd(0.0),
-    epsP_crb(0.0), epsP_crd(0.0),
-    epsP_shb(0.0), epsP_shd(0.0)
+XC::ACICreepShrinkageState::ACICreepShrinkageState(void)
+  : CreepShrinkageStateBase(),
+    eps_cr(0.0), epsP_cr(00),
+    eps_sh(0.0), epsP_sh(0.0)
   {}
 
-XC::MC10CreepShrinkageStrains::MC10CreepShrinkageStrains(const double &_age, const double &_tcast, const double &_Et)
-  : CreepShrinkageStrainsBase(_age, _tcast, _Et),
-    eps_crb(0.0), eps_crd(0.0),
-    eps_shb(0.0), eps_shd(0.0),
-    epsP_crb(0.0), epsP_crd(0.0),
-    epsP_shb(0.0), epsP_shd(0.0)
+XC::ACICreepShrinkageState::ACICreepShrinkageState(const double &_age, const double &_tcast, const double &_Et)
+  : CreepShrinkageStateBase(_age, _tcast, _Et),
+    eps_cr(0.0), epsP_cr(00),
+    eps_sh(0.0), epsP_sh(0.0)
   {}
 
 //! @brief Sets initial values for the concrete parameters.
-void XC::MC10CreepShrinkageStrains::setup_parameters(const double &_Et)
+void XC::ACICreepShrinkageState::setup_parameters(const double &_Et)
   {
-    CreepShrinkageStrainsBase::setup_parameters(_Et);
-    eps_crb = 0.0; //Added by ntosic
-    eps_crd = 0.0; //Added by ntosic
-    eps_shb = 0.0; //Added by ntosic
-    eps_shd = 0.0; //Added by ntosic
-    epsP_crb = 0.0; //Added by ntosic
-    epsP_crd = 0.0; //Added by ntosic
-    epsP_shb = 0.0; //Added by ntosic
-    epsP_shd = 0.0; //Added by ntosic
+    CreepShrinkageStateBase::setup_parameters(_Et);
+    eps_cr= 0.0;
+    epsP_cr= 0.0;
+    eps_sh= 0.0;
+    epsP_sh= 0.0; 
   }
 
-int XC::MC10CreepShrinkageStrains::commit_state(const int &count, const double &hstvP_sig, const double &currentTime)
+int XC::ACICreepShrinkageState::commit_state(const int &count, const double &hstvP_sig, const double &currentTime)
   {
-    CreepShrinkageStrainsBase::commit_state(count, hstvP_sig, currentTime);
+    CreepShrinkageStateBase::commit_state(count, hstvP_sig, currentTime);
 	
     //Added by AMK:
-    epsP_shb= eps_shb; // Commit basic shrinkage strain.
-    epsP_shd= eps_shd; // Commit drying shrinkage strain.
-    epsP_crb= eps_crb; // Commit basic creep strain.
-    epsP_crd= eps_crd; // Commit drying creep strain.
+    epsP_sh= eps_sh; // Commit shrinkage strain.
+    epsP_cr= eps_cr; // Commit creep strain.
     
     return 0;
   }
 
-int XC::MC10CreepShrinkageStrains::revert_to_last_commit(void)
+int XC::ACICreepShrinkageState::revert_to_last_commit(void)
   {
-    CreepShrinkageStrainsBase::revert_to_last_commit();
-    eps_shb= epsP_shb;
-    eps_shd= epsP_shd;
-    eps_crb= epsP_crb;
-    eps_crd= epsP_crd;
+    CreepShrinkageStateBase::revert_to_last_commit();
+    eps_sh= epsP_sh;
+    eps_cr= epsP_cr;
   
     return 0;
   }
 
-int XC::MC10CreepShrinkageStrains::revert_to_start(const double &Et)
+int XC::ACICreepShrinkageState::revert_to_start(const double &Et)
   {
-    CreepShrinkageStrainsBase::revert_to_start(Et);
-    eps_shb= 0.0; epsP_shb= 0.0;
-    eps_shd= 0.0; epsP_shd= 0.0;
-    eps_crb= 0.0; epsP_crb= 0.0;
-    eps_crd= 0.0; epsP_crd= 0.0;
+    CreepShrinkageStateBase::revert_to_start(Et);
+    eps_sh= 0.0;
+    epsP_sh= 0.0;
+    eps_cr= 0.0;
+    epsP_cr= 0.0;
     return 0;
   }
 
 //! @brief Send object members through the communicator argument.
-int XC::MC10CreepShrinkageStrains::sendData(Communicator &comm)
+int XC::ACICreepShrinkageState::sendData(Communicator &comm)
   {
-    int res= CreepShrinkageStrainsBase::sendData(comm);
-    res+= comm.sendDoubles(epsP_crb, epsP_crd, epsP_shb, epsP_shd, getDbTagData(),CommMetaData(4));
+    int res= CreepShrinkageStateBase::sendData(comm);
+    res+= comm.sendDoubles(epsP_cr, epsP_sh, getDbTagData(),CommMetaData(4));
     return res;
   }
 //! @brief Receives object members through the communicator argument.
-int XC::MC10CreepShrinkageStrains::recvData(const Communicator &comm)
+int XC::ACICreepShrinkageState::recvData(const Communicator &comm)
   {
-    int res= CreepShrinkageStrainsBase::recvData(comm);
-    res+= comm.receiveDoubles(epsP_crb, epsP_crd, epsP_shb, epsP_shd, getDbTagData(),CommMetaData(4));
+    int res= CreepShrinkageStateBase::recvData(comm);
+    res+= comm.receiveDoubles(epsP_cr, epsP_sh, getDbTagData(),CommMetaData(4));
     return res;
   }
 
 //! @brief Sends object through the communicator argument.
-int XC::MC10CreepShrinkageStrains::sendSelf(Communicator &comm)
+int XC::ACICreepShrinkageState::sendSelf(Communicator &comm)
   {
     setDbTag(comm);
     const int dataTag= getDbTag();
@@ -124,7 +112,7 @@ int XC::MC10CreepShrinkageStrains::sendSelf(Communicator &comm)
   }
 
 //! @brief Receives object through the communicator argument.
-int XC::MC10CreepShrinkageStrains::recvSelf(const Communicator &comm)
+int XC::ACICreepShrinkageState::recvSelf(const Communicator &comm)
   {
     inicComm(5);
     const int dataTag= getDbTag();
@@ -147,20 +135,16 @@ int XC::MC10CreepShrinkageStrains::recvSelf(const Communicator &comm)
   }
 
 
-void XC::MC10CreepShrinkageStrains::Print(std::ostream &s, int flag) const
+void XC::ACICreepShrinkageState::Print(std::ostream &s, int flag) const
   {
     s << "age= " << this->age
       << " tcast= " << this->tcast
       << " epsInit= " << this->epsInit
       << " sigInit= " << this->sigInit
-      << " eps_crb= " << this->eps_crb
-      << " epsP_crb= " << this->epsP_crb
-      << " eps_crd= " << this->eps_crd
-      << " epsP_crd= " << this->epsP_crd
-      << " eps_shb= " << this->eps_shb
-      << " epsP_shb= " << this->epsP_shb
-      << " eps_shd= " << this->eps_shd
-      << " epsP_shd= " << this->epsP_shd
+      << " eps_cr= " << this->eps_cr
+      << " epsP_cr= " << this->epsP_cr
+      << " eps_sh= " << this->eps_sh
+      << " epsP_sh= " << this->epsP_sh
       << " eps_m= " << this->eps_m
       << " epsP_m= " << this->epsP_m
       << " eps_total= " << this->eps_total
