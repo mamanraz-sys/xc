@@ -319,7 +319,7 @@ class ReinfRow(object):
         if nRebars:
             self.setNumberOfBars(nRebars= nRebars, width= width, nominalLatCover= nominalLatCover)
         if rebarsSpacing:
-            self.setSpacing(rebarsSpacing= rebarsSpacing, width= width)
+            self.setSpacing(rebarsSpacing= rebarsSpacing, width= width, nominalLatCover= nominalLatCover)
             
         self.cover= nominalCover+self.rebarsDiam/2.0
         self.centerRebars(width)
@@ -418,15 +418,19 @@ class ReinfRow(object):
         :param nominalLatCover: nominal lateral cover.
         '''
         self.nRebars= nRebars
-        self.rebarsSpacing= (width-2*nominalLatCover-self.rebarsDiam)/(nRebars-1)
-    def setSpacing(self, rebarsSpacing:float, width:float):
+        availableWidth= width-2*nominalLatCover-self.rebarsDiam
+        self.rebarsSpacing= availableWidth/(nRebars-1)
+        
+    def setSpacing(self, rebarsSpacing:float, width:float, nominalLatCover:float):
         ''' Set the space between rebar axes.
 
         :param rebarsSpacing: spacing between bars.
         :param width: width occupied by the rebars.
+        :param nominalLatCover: nominal lateral cover.
         '''
         self.rebarsSpacing= rebarsSpacing
-        nRebarsTeor= width/rebarsSpacing
+        availableWidth= width-2*nominalLatCover-self.rebarsDiam
+        nRebarsTeor= availableWidth/rebarsSpacing+1
         self.nRebars= int(math.floor(nRebarsTeor))
         
     def getCopy(self):
@@ -456,9 +460,13 @@ class ReinfRow(object):
             centers.'''
         return self.nRebars*math.pi*(self.rebarsDiam/2.0)**4/4.0
       
-    def centerRebars(self,width):
-        '''center the row of rebars in the width of the section'''
-        self.latCover= (width-(self.nRebars-1)*self.rebarsSpacing)/2.0
+    def centerRebars(self, sectionWidth):
+        '''center the row of rebars in the width of the section
+
+        :param sectionWidth: section width.
+        '''
+        rowWidth= (self.nRebars-1)*self.rebarsSpacing
+        self.latCover= (sectionWidth-rowWidth)/2.0
 
     def defStraightLayer(self, reinforcement, layerCode, diagramName, p1, p2):
         '''Definition of a straight reinforcement layer in the XC section 
@@ -689,9 +697,10 @@ class LongReinfLayers(object):
         :param diagramName: name of the strain-stress diagram of the steel.
         :param pointPairs: end points for each row.
         '''
-        for rbRow, pts in zip(self.rebarRows, pointPairs):
+        for i, (rbRow, pts) in enumerate(zip(self.rebarRows, pointPairs)):
             p1= pts[0]; p2= pts[1]
-            self.reinfLayers.append(rbRow.defStraightLayer(reinforcement,layerCode,diagramName,p1,p2))
+            rowLayerCode= layerCode+'_'+str(i)
+            self.reinfLayers.append(rbRow.defStraightLayer(reinforcement= reinforcement, layerCode= rowLayerCode, diagramName= diagramName, p1= p1, p2= p2))
             
     def defCircularLayers(self, reinforcement, code, diagramName, extRad, anglePairs= None):
         '''
