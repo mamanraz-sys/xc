@@ -1492,6 +1492,7 @@ python tests/materials/concrete_shapes/test_mass_properties_rc_section_01.py
 python tests/materials/concrete_shapes/test_mass_properties_rc_section_02.py
 python tests/materials/concrete_shapes/test_reinf_row_01.py
 python tests/materials/concrete_shapes/test_reinf_row_02.py
+python tests/materials/concrete_shapes/test_reinf_row_03.py
 python tests/materials/concrete_shapes/test_reinf_layers_01.py
 python tests/materials/concrete_shapes/test_rc_section_01.py
 python tests/materials/concrete_shapes/test_rc_section_02.py
