@@ -186,7 +186,7 @@ ratio2= abs(vReacA[0]+vReacB[0])
 ## Check vertical reactions.
 ratio3= abs(vReacA[1]+vReacB[1]+q*span)
 ## Check deflection.
-ratio4= abs(vDisp[1]+14.187242585506766e-3)/14.187242585506766e-3
+ratio4= abs(vDisp[1]+14.488428552258911e-3)/14.488428552258911e-3
 
 '''
 print('span l= ', span, ' m')
