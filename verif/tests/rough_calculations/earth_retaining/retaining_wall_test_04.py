@@ -226,6 +226,7 @@ for e in wall.wallSet.elements:
 
 ratio3= abs(maxCF-0.24571792661378805)/0.24571792661378805
 
+'''
 print('top footing design bending moment (reference value): ', topFootingDesignBendingMomentRef/1e3,'kN.m/m')
 print('top footing design bending moment (computed value): ',topFootingDesignBendingMoment/1e3,'kN.m/m')
 print('ratio1= ', ratio1)
@@ -234,7 +235,6 @@ print('top footing design shear (computed value): ', topFootingDesignShear/1e3,'
 print('ratio2= ', ratio2)
 print('maximum efficiency: ', maxCF)
 print('ratio3= ', ratio3)
-'''
 '''
 
 from misc_utils import log_messages as lmsg
