@@ -257,13 +257,17 @@ for tp in sorted_by_x[1:]:
 modelSpace.fixNode("00", p0.getNode().tag)
 modelSpace.fixNode("F0", p2.getNode().tag)
 
-# Locate offending elements.
-offendingElementTags= [218] # 527, 537, 538, 542, 543, 548, 549, 550, 551, 552, 553, 558, 559, 560, 564, 572, 579, 591, 592, 596, 597, 599]
-for tag in offendingElementTags:
-    elem= modelSpace.getElement(tag)
-    centroid= elem.getPosCentroid(True)
-    material= elem.getSection(0)
-    print(tag, centroid, material.name)
+# # Locate offending elements.
+# offendingElementTags= [192]
+# offendingElements= list()
+# for tag in offendingElementTags:
+#     elem= modelSpace.getElement(tag)
+#     centroid= elem.getPosCentroid(True)
+#     material= elem.getSection(0)
+#     fibers= material.getFibers()
+#     for f in fibers:
+#         print(f.getPos(), f.getMaterial())
+#     print(tag, centroid, material.name, fibers.getNumFibers())
 
 # Loads.
 loads= list()

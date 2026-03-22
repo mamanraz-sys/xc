@@ -121,7 +121,7 @@ rowB= def_simple_RC_section.ReinfRow(rebarsDiam= mainBarDiameter, rebarsSpacing=
 
 ## Third row.
 smallBarDiameter= 10e-3
-rowC= def_simple_RC_section.ReinfRow(rebarsDiam= smallBarDiameter, rebarsSpacing= spacing, width= rcSection.b, nominalCover= cover, nominalLatCover= lateralCover+spacing/2.0)
+rowC= def_simple_RC_section.ReinfRow(rebarsDiam= smallBarDiameter, rebarsSpacing= spacing, width= rcSection.b, nominalCover= cover, nominalLatCover= lateralCover)
 
 ## Longitudinal shear reinforcement.
 shearReinfABarDiameter= 8e-3
@@ -215,13 +215,13 @@ feProblem.errFileName= "cerr" # From now on display errors if any.
 feProblem.logFileName= "clog" # From now on display warnings if any.
 
 relError= list() # Relative errors.
-refMeanCFs= [0.360956107976494, 0.08848053233910935] # 20/07/2025 those values
-                                                     # have been updated
-                                                     # due to the limitation
-                                                     # of the design yield
-                                                     # stress of the shear
-                                                     # reinforcement to 400
-                                                     # MPa.
+refMeanCFs= [0.3604133620837595, 0.08736392845339788] # 20/07/2025 those values
+                                                      # have been updated
+                                                      # due to the limitation
+                                                      # of the design yield
+                                                      # stress of the shear
+                                                      # reinforcement to 400
+                                                      # MPa.
 
 for meanCF, refMeanCF in zip(meanCFs, refMeanCFs):
     relError.append(abs(meanCF-refMeanCF)/refMeanCF)

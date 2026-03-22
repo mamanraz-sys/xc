@@ -123,7 +123,7 @@ rowB= def_simple_RC_section.ReinfRow(rebarsDiam= mainBarDiameter, rebarsSpacing=
 
 ## Third row.
 smallBarDiameter= 4e-3
-rowC= def_simple_RC_section.ReinfRow(rebarsDiam= smallBarDiameter, rebarsSpacing= spacing, width= rcSection.b, nominalCover= cover, nominalLatCover= lateralCover+spacing/2.0)
+rowC= def_simple_RC_section.ReinfRow(rebarsDiam= smallBarDiameter, rebarsSpacing= spacing, width= rcSection.b, nominalCover= cover, nominalLatCover= lateralCover)
 
 ## Define reinforcement directions.
 reinforcementUpVector= geom.Vector3d(1,0,0) # X+ this vector defines the meaning
@@ -196,8 +196,12 @@ meanCFs= limitState.check(setCalc= None, crossSections= reinfConcreteSectionDist
 feProblem.errFileName= "cerr" # From now on display errors if any.
 feProblem.logFileName= "clog" # From now on display warnings if any.
 
-ratio1= abs(meanCFs[0]-0.49950728265667205)/0.49950728265667205
-ratio2= abs(meanCFs[1]-0.5052208919258203)/0.5052208919258203
+# Check results (22/03/2026): Update the capacity factors after last changes in
+# the code: fixed error in main reinforcement layers definition:
+#   old value: meanCFs[0]= 0.49950728265667205
+#   old value: meanCFs[1]= 0.5151243799585318
+ratio1= abs(meanCFs[0]-0.4299173845988166)/0.4299173845988166
+ratio2= abs(meanCFs[1]-0.5030722934960689)/0.5030722934960689
 
 '''
 print('meanCFs= ', meanCFs)
