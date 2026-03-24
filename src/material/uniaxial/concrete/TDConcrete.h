@@ -102,7 +102,7 @@ class TDConcrete : public TDConcreteBase
     ACICreepShrinkageParameters creepShrinkageParameters; //!< Creep and shrinkage parameters.
     
     //Added by AMK:
-    ACICreepShrinkageState creepShrinkageStrains;
+    ACICreepShrinkageState creepShrinkageState;
     double phi_i;
     
     ACICreepSteps creepSteps;
@@ -133,27 +133,27 @@ class TDConcrete : public TDConcreteBase
     
     //! @brief Assign current concrete stiffness.
     virtual void setEt(const double &d)
-      { this->creepShrinkageStrains.setEt(d); }
+      { this->creepShrinkageState.setEt(d); }
     //! @brief Returns current concrete stiffness.
     virtual double getEt(void) const
-      { return this->creepShrinkageStrains.getEt(); }
+      { return this->creepShrinkageState.getEt(); }
 
     //! @brief Assign the concrete age at first loading.
     void setAge(const double &d)
-      { this->creepShrinkageStrains.setAge(d); }
+      { this->creepShrinkageState.setAge(d); }
     //! @brief Return the concrete age at first loading.
     double getAge(void) const
-      { return this->creepShrinkageStrains.getAge(); }
+      { return this->creepShrinkageState.getAge(); }
     
     //! @brief Assign the analysis time corresponding to concrete casting in days.
     void setTCast(const double &d)
-      { this->creepShrinkageStrains.setTCast(d); }
+      { this->creepShrinkageState.setTCast(d); }
     //! @brief Return the analysis time corresponding to concrete casting in days.
     double getTCast(void) const
-      { return this->creepShrinkageStrains.getTCast(); }
+      { return this->creepShrinkageState.getTCast(); }
  
     double getStrain(void) const
-      { return creepShrinkageStrains.getStrain(); }
+      { return creepShrinkageState.getStrain(); }
     
     void setCreepShrinkageParameters(const ACICreepShrinkageParameters &);
     const ACICreepShrinkageParameters &getCreepShrinkageParameters(void) const;

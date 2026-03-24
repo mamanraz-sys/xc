@@ -87,7 +87,7 @@ class CreepMaterial: public EncapsulatedUniaxialMaterial
     // matpar : Concrete FIXED PROPERTIES
     //	double fcT;  //Time Dependent Strength
     double beta; //!< tension softening parameter.
-    ACICreepShrinkageState creepShrinkageStrains;
+    ACICreepShrinkageState creepShrinkageState;
     
     double phi_i; //!< Creep coefficient.
 

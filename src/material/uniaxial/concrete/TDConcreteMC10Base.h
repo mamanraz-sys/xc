@@ -64,7 +64,7 @@ class TDConcreteMC10Base : public TDConcreteBase
     // hstv : Concrete HISTORY VARIABLES  current step
 	
     //Added by AMK:
-    MC10CreepShrinkageState creepShrinkageStrains;
+    MC10CreepShrinkageState creepShrinkageState;
     
     double phib_i; //!< basic phi coefficient (ntosic).
     double phid_i; //!< drying phi coefficient (ntosic).
@@ -98,27 +98,27 @@ class TDConcreteMC10Base : public TDConcreteBase
     
     //! @brief Assign current concrete stiffness.
     virtual void setEt(const double &d)
-      { this->creepShrinkageStrains.setEt(d); }
+      { this->creepShrinkageState.setEt(d); }
     //! @brief Returns current concrete stiffness.
     virtual double getEt(void) const
-      { return this->creepShrinkageStrains.getEt(); }
+      { return this->creepShrinkageState.getEt(); }
 
     //! @brief Assign the concrete age at first loading.
     void setAge(const double &d)
-      { this->creepShrinkageStrains.setAge(d); }
+      { this->creepShrinkageState.setAge(d); }
     //! @brief Return the concrete age at first loading.
     double getAge(void) const
-      { return this->creepShrinkageStrains.getAge(); }
+      { return this->creepShrinkageState.getAge(); }
     
     //! @brief Assign the analysis time corresponding to concrete casting in days.
     void setTCast(const double &d)
-      { this->creepShrinkageStrains.setTCast(d); }
+      { this->creepShrinkageState.setTCast(d); }
     //! @brief Return the analysis time corresponding to concrete casting in days.
     double getTCast(void) const
-      { return this->creepShrinkageStrains.getTCast(); }
+      { return this->creepShrinkageState.getTCast(); }
     
     double getStrain(void) const
-      { return creepShrinkageStrains.getStrain(); }
+      { return creepShrinkageState.getStrain(); }
     
     double setCreepBasicStrain(double time, double stress); //Added by AMK //ntosic: split into basic and drying creep
     double setCreepDryingStrain(double time, double stress); //Added by AMK //ntosic: split into basic and drying creep

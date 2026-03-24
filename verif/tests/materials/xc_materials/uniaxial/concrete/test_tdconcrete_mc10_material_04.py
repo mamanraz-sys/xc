@@ -108,7 +108,9 @@ solProc.setup()
 # Set the load control integrator with dt=0 so that the domain time doesn’t advance.
 solProc.integrator.dLambda1= 0.0  
 result= solProc.analysis.analyze(1)
-
+if(result!=0):
+    lmsg.error("Can't solve for the initial state.")
+    exit(1)
 
 dt = 10 # days
 solProc.integrator.dLambda1= dt # set new increment for the integrator.
@@ -120,6 +122,9 @@ modelSpace.setCreepOn() # Turn creep on
 t = 0
 while t < 10000:
     ok = solProc.analysis.analyze(1)
+    if(ok!=0):
+        lmsg.error("Can't solve for time: "+str(t)+' days.')
+        exit(1)
     t+= dt
 errorDt= abs(solProc.integrator.dLambda1-dt)/dt # Make sure there is no modification of dLambda1
     

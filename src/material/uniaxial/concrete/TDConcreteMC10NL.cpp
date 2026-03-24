@@ -156,20 +156,20 @@ int XC::TDConcreteMC10NL::setTrialStrain(double trialStrain, double strainRate)
     */
 	
     // Check casting age:
-    if(creepShrinkageStrains.getCastingAge(t)<(2.0-0.0001))
+    if(creepShrinkageState.getCastingAge(t)<(2.0-0.0001))
       { //Assumed that concrete can only carry load once hardened at 2 days following casting
-	creepShrinkageStrains.set_eps_cr_sh_m_total(0.0, 0.0, 0.0, 0.0, 0.0, trialStrain);
+	creepShrinkageState.set_eps_cr_sh_m_total(0.0, 0.0, 0.0, 0.0, 0.0, trialStrain);
       }
     else
       { // Concrete has hardened and is ready to accept load
 	// Initialize total strain:
-	creepShrinkageStrains.set_total_strain(trialStrain); // Total strain.
+	creepShrinkageState.set_total_strain(trialStrain); // Total strain.
 	
 	// Calculate shrinkage Strain:
 	if (iter < 1)
 	  {
-	    creepShrinkageStrains.setShrinkBasic(this->setShrinkBasic(t)); //ntosic
-	    creepShrinkageStrains.setShrinkDrying(this->setShrinkDrying(t)); //ntosic
+	    creepShrinkageState.setShrinkBasic(this->setShrinkBasic(t)); //ntosic
+	    creepShrinkageState.setShrinkDrying(this->setShrinkDrying(t)); //ntosic
 	  }
 
     	// Calculate creep and mechanical strain, assuming stress remains constant in a time step:
@@ -177,8 +177,8 @@ int XC::TDConcreteMC10NL::setTrialStrain(double trialStrain, double strainRate)
 	  {
 	    if (fabs(t-creepSteps.getLastTime()) <= 0.0001)
 	      { //If t = t(i-1), use creep/shrinkage from last calculated time step
-		creepShrinkageStrains.use_creep_shrinkage_from_last_commit();
-		hstv.sig = setStress(creepShrinkageStrains.getMech(), hstv.e);
+		creepShrinkageState.use_creep_shrinkage_from_last_commit();
+		hstv.sig = setStress(creepShrinkageState.getMech(), hstv.e);
 	      }
 	    else
 	      { // if the current calculation is a new time step
@@ -197,18 +197,18 @@ int XC::TDConcreteMC10NL::setTrialStrain(double trialStrain, double strainRate)
 		//} else {
 		if(iter < 1)
 		  {
-                    creepShrinkageStrains.setCreepBasic(this->setCreepBasicStrain(t, hstv.sig)); 
-		    creepShrinkageStrains.setCreepDrying(this->setCreepDryingStrain(t, hstv.sig));
+                    creepShrinkageState.setCreepBasic(this->setCreepBasicStrain(t, hstv.sig)); 
+		    creepShrinkageState.setCreepDrying(this->setCreepDryingStrain(t, hstv.sig));
 		  }
-		creepShrinkageStrains.update_mech_strain(); //ntosic
-		hstv.sig = setStress(creepShrinkageStrains.getMech(), hstv.e);
+		creepShrinkageState.update_mech_strain(); //ntosic
+		hstv.sig = setStress(creepShrinkageState.getMech(), hstv.e);
 		//}
 	      }
 	  }
 	else
 	  { //Static Analysis using previously converged time-dependent strains
-	    creepShrinkageStrains.use_creep_shrinkage_from_last_commit();
-	    hstv.sig = setStress(creepShrinkageStrains.getMech(), hstv.e);
+	    creepShrinkageState.use_creep_shrinkage_from_last_commit();
+	    hstv.sig = setStress(creepShrinkageState.getMech(), hstv.e);
 	  }
 	//
 	//std::cerr<<"\n   eps_cr = "<<eps_cr;
@@ -224,15 +224,20 @@ double XC::TDConcreteMC10NL::setStress(double strain, double &stiff)
   {
 // Determine proper load path (comp load, comp unload, tens load, tens unload):
     double stress=0.0;
-    creepShrinkageStrains.revertCrackFlag();
+    creepShrinkageState.revertCrackFlag();
     hstv.ecmin = hstvP.ecmin; //Initialized as ecmin = 0; ecmin should never be positive
-    hstv.ecmax= hstvP.ecmax; //Initialized as ecmax = 0; ecmax should never be negative
+    // 23/03/2026 changed by LP BEGIN.
+    // Without this change the tests test_tdconcrete_mc10_fiber_section2d_02.py
+    // test_composite_structure_01.py and test_composite_structure_02.py don't
+    // converge.
+    hstv.ecmax= std::max(hstv.ecmax, hstvP.ecmax); //Initialized as ecmax = 0; ecmax should never be negative
+    // 23/03/2026 changed by LP END.
     
     if(strain <= hstv.ecmin)
       { // Concrete in compression loading
         this->Compr_Envlp(strain,stress,stiff);
         hstv.ecmin= strain; // reset ecmin
-        creepShrinkageStrains.setCrackFlag(0); // concrete in compression, no cracking
+        creepShrinkageState.setCrackFlag(0); // concrete in compression, no cracking
       }
     else
       { // Concrete in either: Comp Unload, Tens Load, or Tens Unload/reload
@@ -254,7 +259,7 @@ double XC::TDConcreteMC10NL::setStress(double strain, double &stiff)
 		this->Tens_Envlp(strain, stress, stiff);
 		if (strain >= et0)
 		  {//cracking has occurred, set cracking flag
-		    creepShrinkageStrains.setCrackFlag(1);
+		    creepShrinkageState.setCrackFlag(1);
 		  }
 	      }
 	    else
@@ -265,7 +270,7 @@ double XC::TDConcreteMC10NL::setStress(double strain, double &stiff)
 		  }
 		else
 		  { // Nonlinear unloading/reloading, i.e., cracked
-		    const double &Et= creepShrinkageStrains.getEt();
+		    const double &Et= creepShrinkageState.getEt();
 		    stress = Et*strain;
 		    stiff = Et;
 		  }
@@ -298,7 +303,7 @@ int XC::TDConcreteMC10NL::commitState(void)
     //	DSIG_i[count+1] = hstv.sig-hstvP.sig;
     //}
     const double currentTime= this->getCurrentTime();
-    const double eps_mech= creepShrinkageStrains.getMech();
+    const double eps_mech= creepShrinkageState.getMech();
     creepSteps.assignNextStep(this->hstv, this->hstvP, this->Ec, eps_mech, currentTime);
 
     hstvP.e= hstv.e;
@@ -307,7 +312,7 @@ int XC::TDConcreteMC10NL::commitState(void)
 
    //Added by AMK:
     const int count= this->creepSteps.getCount();
-    creepShrinkageStrains.commit_state(count, this->hstvP.sig, currentTime);
+    creepShrinkageState.commit_state(count, this->hstvP.sig, currentTime);
     //ntosic: strain compression limit changed to 0.4fpc/Ec; Include nonlinear creep coefficient?
     if(eps_mech < 0 && fabs(eps_mech)>0.40*fabs(fpc/Ec))
       {

@@ -87,7 +87,12 @@ class MC10CreepShrinkageState: public CreepShrinkageStateBase
 	this->eps_shd= _eps_shd; // Drying shrinkage strain.
       }
     void update_mech_strain(void)
-      {	this->eps_m= this->eps_total - this->eps_crb - this->eps_crd - this->eps_shb - this->eps_shd; }
+      {
+	const double shrinkage_strain= this->eps_shb + this->eps_shd;
+	const double creep_strain= this->eps_crb + this->eps_crd;
+	const double non_mech_strain= shrinkage_strain + creep_strain;
+	this->eps_m= this->eps_total - non_mech_strain;
+      }
     
     void use_creep_shrinkage_from_last_commit(void)
       {

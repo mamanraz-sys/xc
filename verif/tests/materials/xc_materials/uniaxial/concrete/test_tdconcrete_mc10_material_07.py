@@ -66,11 +66,12 @@ tdConcrete= typical_materials.defTDConcreteMC10(preprocessor= preprocessor, name
 
 
 L= 10.0 # Length
-b = 300*mm
-h = 300*mm
-As = 1500*mm**2
-Ag = b*h
-Ac = Ag-As
+side= 700*mm
+b= side
+h= side
+As= 1500*mm**2
+Ag= b*h
+Ac= Ag-As
 
 # Define mesh
 nodes= preprocessor.getNodeHandler
@@ -82,7 +83,7 @@ n2= modelSpace.newNode(L, 0)
 
 ## Define constraints.
 modelSpace.fixNode('00', n1.tag)
-modelSpace.fixNode('00', n2.tag)
+modelSpace.fixNode('F0', n2.tag)
 
 ## Define fiber section.
 twoFibersSection= preprocessor.getMaterialHandler.newMaterial("fiber_section_3d","twoFibersSection")
@@ -101,8 +102,7 @@ steelFiber= truss.getMaterial().getFibers().findFiber(steelFiber.tag)
 Tcr = 28 # creep model age (in days)
 modelSpace.setCurrentTime(Tcr)
 
-# solProc= predefined_solutions.PlainNewtonRaphson(feProblem, printFlag= 0)
-solProc= predefined_solutions.PenaltyModifiedNewton(feProblem, printFlag= 0)
+solProc= predefined_solutions.PlainNewtonRaphson(feProblem, maxNumIter= 20, convergenceTestTol= 1e-6, printFlag= 0)
 solProc.setup()
 # Set the load control integrator with dt=0 so that the domain time doesn’t advance.
 solProc.integrator.dLambda1= 0.0  
@@ -130,32 +130,34 @@ errorDt= abs(solProc.integrator.dLambda1-dt)/dt # Make sure there is no modifica
 sigma_c= concreteFiber.getStress()
 epsilon_c= concreteFiber.getStrain()
 sigma_s= steelFiber.getStress()
-ratio0= abs(sigma_s/1e6) # MPa.
 epsilon_s= steelFiber.getStrain()
-ratio1= abs(epsilon_s)
+ratio0= abs(epsilon_c-epsilon_s)
+ratio1= sigma_s*As+sigma_c*Ac
 N= truss.getN()
-ratio2= abs(N-sigma_c*Ac)/abs(N)
+ratio2= abs(N)
 modelSpace.calculateNodalReactions()
 Rx= n2.getReaction[0]
-ratio3= abs(Rx-sigma_c*Ac)/abs(sigma_c*Ac)
+ratio3= abs(Rx)
+Ux= n2.getDisp[0]
 
 '''
 print('sigma_c= ', sigma_c/MPa, ' MPa')
 print('epsilon_c= ', epsilon_c*1e3)
 print('sigma_s= ', sigma_s/MPa, ' MPa')
-print('ratio0= ', ratio0)
 print('epsilon_s= ', epsilon_s*1e3)
+print('ratio0= ', ratio0)
 print('ratio1= ', ratio1)
 print('N= ', N/1e3)
 print('ratio2= ', ratio2)
 print('Rx= ', Rx/1e3)
 print('ratio3= ', ratio3)
+print('Ux= ', Ux*1e3)
 '''
 
 import os
 from misc_utils import log_messages as lmsg
 fname= os.path.basename(__file__)
-if (abs(ratio0)<1e-4) and (abs(ratio1)<1e-6) and (abs(ratio2)<1e-6) and (abs(ratio3)<1e-6):
+if (abs(ratio0)<1e-6) and (abs(ratio1)<1e-6) and (abs(ratio2)<1e-6) and (abs(ratio3)<1e-6):
     print('test '+fname+': ok.')
 else:
     lmsg.error(fname+' ERROR.')

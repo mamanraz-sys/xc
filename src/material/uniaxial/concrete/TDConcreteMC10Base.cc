@@ -60,7 +60,7 @@ void XC::TDConcreteMC10Base::setup_parameters(void)
     TDConcreteBase::setup_parameters();
 
     //ntosic: SPLIT INTO BASIC AND DRYING!
-    creepShrinkageStrains.setup_parameters(this->Ec); //Added by AMK
+    creepShrinkageState.setup_parameters(this->Ec); //Added by AMK
 	
     //Change inputs into the proper sign convention: ntosic: changed
     creepShrinkageParameters.setup_parameters();
@@ -85,7 +85,7 @@ XC::TDConcreteMC10Base::TDConcreteMC10Base(int tag, int classTag)
 XC::TDConcreteMC10Base::TDConcreteMC10Base(int tag, int classTag, double _fc, double _ft, double _Ets, double _Ec, double _Ecm, double _beta, double _age, double _tcast, const MC10CreepShrinkageParameters &csp)
   : TDConcreteBase(tag, classTag, _fc, _ft, _Ets, _Ec, _beta),
     Ecm(_Ecm), 
-    creepShrinkageStrains(_age, _tcast, _Ec),
+    creepShrinkageState(_age, _tcast, _Ec),
     creepShrinkageParameters(csp)
   {
     setup_parameters();
@@ -121,7 +121,7 @@ double XC::TDConcreteMC10Base::setShrinkBasic(double time)
 
 //ntosic
 double XC::TDConcreteMC10Base::setShrinkDrying(double time)
-  { return creepShrinkageParameters.getShrinkDrying(this->creepShrinkageStrains.getAge(), time); }
+  { return creepShrinkageParameters.getShrinkDrying(this->creepShrinkageState.getAge(), time); }
 
 //ntosic
 double XC::TDConcreteMC10Base::getPHIB_i(void) const
@@ -153,7 +153,7 @@ double XC::TDConcreteMC10Base::setCreepDryingStrain(double time, double stress)
 
 int XC::TDConcreteMC10Base::revertToLastCommit(void)
   {
-    this->creepShrinkageStrains.revert_to_last_commit();
+    this->creepShrinkageState.revert_to_last_commit();
 
     hstv= hstvP;
     return 0;
@@ -161,7 +161,7 @@ int XC::TDConcreteMC10Base::revertToLastCommit(void)
 
 int XC::TDConcreteMC10Base::revertToStart(void)
   {
-    this->creepShrinkageStrains.revert_to_start(this->Ec);
+    this->creepShrinkageState.revert_to_start(this->Ec);
     
     hstvP.revertToStart(Ec);
 
@@ -178,7 +178,7 @@ int XC::TDConcreteMC10Base::sendData(Communicator &comm)
     int res= TDConcreteBase::sendData(comm);
     res+= comm.sendDouble(Ecm,getDbTagData(),CommMetaData(4));
     res+= comm.sendMovable(creepShrinkageParameters, getDbTagData(),CommMetaData(5));
-    res+= comm.sendMovable(creepShrinkageStrains, getDbTagData(),CommMetaData(6));
+    res+= comm.sendMovable(creepShrinkageState, getDbTagData(),CommMetaData(6));
     return res;
   }
 
@@ -188,7 +188,7 @@ int XC::TDConcreteMC10Base::recvData(const Communicator &comm)
     int res= TDConcreteBase::recvData(comm);
     res+= comm.receiveDouble(Ecm,getDbTagData(),CommMetaData(4));
     res+= comm.receiveMovable(creepShrinkageParameters, getDbTagData(),CommMetaData(5));
-    res+= comm.receiveMovable(creepShrinkageStrains, getDbTagData(),CommMetaData(6));
+    res+= comm.receiveMovable(creepShrinkageState, getDbTagData(),CommMetaData(6));
     return res;
   }
 

@@ -694,6 +694,8 @@ python tests/sample_problems/soil_subgrade_reaction/test_quasi_winkler.py
 python tests/sample_problems/soil_subgrade_reaction/test_foundation_slab.py
 echo "$BLEU" "  Earth retaining." "$NORMAL"
 python tests/sample_problems/earth_retaining/test_rail_retaining_wall.py
+echo "$BLEU" "  Strut-and-tie tests." "$NORMAL"
+python tests/sample_problems/composite_structures/test_composite_structure_01.py
 
 echo "$BLEU" "Solution tests." "$NORMAL"
 python tests/solution/superlu_solver_test_01.py
@@ -1294,6 +1296,7 @@ python tests/materials/xc_materials/uniaxial/concrete/test_tdconcrete_mc10_mater
 python tests/materials/xc_materials/uniaxial/concrete/test_tdconcrete_mc10_material_04.py
 python tests/materials/xc_materials/uniaxial/concrete/test_tdconcrete_mc10_material_05.py
 python tests/materials/xc_materials/uniaxial/concrete/test_tdconcrete_mc10_material_06.py
+python tests/materials/xc_materials/uniaxial/concrete/test_tdconcrete_mc10_material_07.py
 python tests/materials/xc_materials/uniaxial/concrete/test_tdconcrete_mc10nl_material_01.py
 python tests/materials/xc_materials/uniaxial/concrete/test_tdconcrete_mc10nl_material_02.py
 python tests/materials/xc_materials/uniaxial/concrete/test_HA25_01.py
