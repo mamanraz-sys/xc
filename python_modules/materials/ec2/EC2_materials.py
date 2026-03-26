@@ -11,6 +11,7 @@ Ductility grades:
 
 import sys
 import math
+import geom
 from materials import concrete_base
 from materials.sections import rebar_family
 from misc_utils import log_messages as lmsg
@@ -862,20 +863,21 @@ class Rebar(rebar_family.Rebar):
         '''
         return self.steel.getLapLength(concrete= concrete, rebarDiameter= self.diam, eta1= eta1, steelEfficiency= steelEfficiency, ratioOfOverlapedTensionBars= ratioOfOverlapedTensionBars, alpha_1= alpha_1, alpha_2= alpha_2, alpha_3= alpha_3, alpha_5= alpha_5)
 
-    def getAxialInitialResistanceConeFailure(self, k1, fck_cube, hEf):
-        ''' Return the characteristic resistance of a cast-in fastener in case
-            of concrete cone failure according to expression 7.2 in clause
+    def getAxialInitialResistanceConeFailure(self, concrete, k1, hEf):
+        ''' Return the cone failure characteristic resistance of a single 
+            cast-in fastener not influenced by adjacent fasteners or edges 
+            of the concrete member according to expression 7.2 in clause
             7.2.1.4 of EN 1992-4:2018.
 
-         :param k1: 8.9 for cast-in headed fasteners in cracked concrete 
-                    and 11.0 for cast-in headed fasteners in non-cracked 
-                    concrete.
-         :param fck: nominal characteristic compressive cylinder strength 
-                     (150 mm diameter by 300 mm height).
-         :param hEf: effective embedment depth (according to figures 3.1 to 3.3
-                     of EN 1992-4:2018) (m).
-         '''
-        return k1*math.sqrt(fck_cube/1e6)*pow(hEf*1e3,1.5)
+        :param concrete: concrete material.
+        :param k1: 8.9 for cast-in headed fasteners in cracked concrete 
+                   and 11.0 for cast-in headed fasteners in non-cracked 
+                   concrete.
+        :param hEf: effective embedment depth (according to figures 3.1 to 3.3
+                    of EN 1992-4:2018) (m).
+        '''
+        fck= abs(concrete.fck)
+        return k1*math.sqrt(fck/1e6)*pow(hEf*1e3,1.5)
 
     def getScrN(self, hEf):
         ''' Return the side length of the reference projected ($S_{cr,N}$) area
