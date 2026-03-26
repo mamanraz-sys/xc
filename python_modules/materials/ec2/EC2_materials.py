@@ -595,14 +595,12 @@ class ReinforcingSteel(concrete_base.ReinforcingSteel):
             exit(1)
         return retval
     
-    def fud(self, k= 1.05):
+    def fud(self):
         ''' Return the value of the ultimate design stress according to clause
             3.2.7 of EC2:2004.
 
-        :param k: ductility factor whose value is given in table C.1 of 
-                  EC2:2004.
         '''
-        return k*self.fyd()
+        return self.k*self.fyd()
     
     def getBasicAnchorageLength(self, concrete, rebarDiameter, eta1= 0.7, steelEfficiency= 1.0):
         '''Returns basic required anchorage length in tension according to 
@@ -1026,7 +1024,7 @@ class Rebar(rebar_family.Rebar):
         '''
         area= self.getArea()
         fyd= self.steel.fyd()
-        lbd= self.getDesignAnchorageLength(concrete= concrete, rebarDiameter= self.diam, eta1= eta1, steelEfficiency= steelEfficiency, compression= False, alpha_1= alpha_1, alpha_2= alpha_2, alpha_3= alpha_3, alpha_4= alpha_4, alpha_5= alpha_5)
+        lbd= self.getDesignAnchorageLength(concrete= concrete, eta1= eta1, steelEfficiency= steelEfficiency, compression= False, alpha_1= alpha_1, alpha_2= alpha_2, alpha_3= alpha_3, alpha_4= alpha_4, alpha_5= alpha_5)
         return area*fyd*lb/lbd
     
 rebar04_S400B= Rebar(diam= 4e-3, steel= S400B) 
