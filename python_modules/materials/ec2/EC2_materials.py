@@ -999,7 +999,7 @@ class Rebar(rebar_family.Rebar):
         return retval
 
     def getPullOutResistance(self, lb, concrete, eta1= 1.0, steelEfficiency= 1.0, alpha_1= 1.0, alpha_2= 1.0, alpha_3= 1.0, alpha_4= 1.0, alpha_5= 1.0, plainFastener= False):
-        ''' Return the pull-out resistance for  cast-in anchors with hook 
+        ''' Return the pull-out resistance for cast-in anchors with hook 
             according to clause 8.4.4 of EN 1992-1-1.
 
         :param lb: anchor length embedded in concrete.
@@ -1028,6 +1028,114 @@ class Rebar(rebar_family.Rebar):
         fyd= self.steel.fyd()
         lbd= self.getDesignAnchorageLength(concrete= concrete, eta1= eta1, steelEfficiency= steelEfficiency, compression= False, alpha_1= alpha_1, alpha_2= alpha_2, alpha_3= alpha_3, alpha_4= alpha_4, alpha_5= alpha_5)
         return area*fyd*lb/lbd
+    
+    def getPullOutEfficiency(self, Td, lb, concrete, eta1= 1.0, steelEfficiency= 1.0, alpha_1= 1.0, alpha_2= 1.0, alpha_3= 1.0, alpha_4= 1.0, alpha_5= 1.0, plainFastener= False):
+        ''' Return the pull-out efficiency for cast-in anchors with hook 
+            according to clause 8.4.4 of EN 1992-1-1.
+
+        :param Td: tensile force in the anchor.
+        :param lb: anchor length embedded in concrete.
+        :param concrete: concrete material.
+        :param eta1: coefficient related to the quality of the bond condition 
+                     and the position of the bar during concreting.
+                     eta1= 1,0 when 'good' conditions are obtained and
+                     eta1= 0,7 for all other cases.
+        :param steelEfficiency: working stress of the reinforcement that it is 
+                                intended to anchor, on the most unfavourable 
+                                load hypothesis, in the section from which 
+                                the anchorage length will be determined divided
+                                by the steel design yield 
+                                strength: (sigma_sd/fyd).
+        :param alpha_1: effect of the form of the bars assuming adequate cover.
+        :param alpha_2: effect of concrete minimum cover.
+        :param alpha_3: effect of confinement by transverse reinforcement.
+        :param alpha_4: influence of one or more welded transverse bars along 
+                        the design anchorage length.
+        :param alpha_5: effect of the pressure transverse to the plane of 
+                        splitting along the design anchorage length.
+        :param plainFastener: true if the fastener has a plain surface (instead
+                              of a ribbed one).
+        '''
+        pullOutResistance= self.getPullOutResistance(lb= lb, concrete= concrete, eta1= eta1, steelEfficiency= steelEfficiency, alpha_1= alpha_1, alpha_2= alpha_2, alpha_3= alpha_3, alpha_4= alpha_4, alpha_5= alpha_5, plainFastener= plainFastener)
+        pullOutCF= Td/pullOutResistance
+        return pullOutCF, pullOutResistance
+        
+    def getUltimateTensileStrength(self):
+        ''' Return the value of the ultimate tensile strength according to 
+            clause 3.2.7 of EC2:2004.
+        '''
+        return self.steel.fud()*self.getArea()
+
+    def getUltimateTensileStrengthEfficiency(self, Td):
+        ''' Return the value of the ultimate tensile strength efficiency 
+            according to clause 3.2.7 of EC2:2004.
+
+        :param Td: tensile force in the anchor.
+        '''
+        if(Td<0.0):
+            className= type(self).__name__
+            methodName= sys._getframe(0).f_code.co_name
+            warningMsg= '; a positive tension force was expected.'
+            lmsg.warning(className+'.'+methodName+warningMsg)
+        FtRd= self.getUltimateTensileStrength()
+        retval= Td/FtRd
+        return retval, FtRd
+    
+    def getUltimateShearStrength(self, alpha_v= 0.5, gamma_M2= 1.25):
+        ''' Return the value of the ultimate shear strength according to 
+            table 3.4 of EN 1993-1-8.
+
+        :param alpha_v: coefficient that takes the value 0.6 when the shear
+                        plane passes through the unthreaded portion of the
+                        bar. When the shear plane passes through the threaded 
+                        portion of the bolt this coefficient is 0.6 for classes
+                        4.6~ 5.6 and 8.8 and 0.5 for classes 4.8, 5.8, 6.8 
+                        and 10.9. See table 3.4 of EN 1993-1-8 for more details.
+        :param gamma_M2: partial safety factor of the steel material according
+                         to paragraph (2) of clause 2.2 of EN 1993-1-8.
+        '''
+        if(gamma_M2 is None):
+            gamma_M2= self.steel.gamma_s
+        fub= self.steel.k*self.steel.fyk
+        return alpha_v*fub*self.getArea()/gamma_M2
+    
+    def getUltimateShearStrengthEfficiency(self, Qd, alpha_v= 0.5, gamma_M2= 1.25):
+        ''' Return the value of the ultimate shear strength efficiency according
+            to table 3.4 of EN 1993-1-8.
+
+        :param Qd: shear force in the anchor.
+        :param alpha_v: coefficient that takes the value 0.6 when the shear
+                        plane passes through the unthreaded portion of the
+                        bar. When the shear plane passes through the threaded 
+                        portion of the bolt this coefficient is 0.6 for classes
+                        4.6~ 5.6 and 8.8 and 0.5 for classes 4.8, 5.8, 6.8 
+                        and 10.9. See table 3.4 of EN 1993-1-8 for more details.
+        :param gamma_M2: partial safety factor of the steel material according
+                         to paragraph (2) of clause 2.2 of EN 1993-1-8.
+        '''
+        FvRd= self.getUltimateShearStrength(alpha_v= alpha_v, gamma_M2= gamma_M2)
+        retval= Qd/FvRd
+        return retval, FvRd
+
+    def getCombinedShearAndTensionEfficiency(self, Td, Qd, alpha_v= 0.5, gamma_M2= 1.25):
+        ''' Return the value of the ultimate shear strength efficiency according
+            to table 3.4 of EN 1993-1-8.
+
+        :param Qd: shear force in the anchor.
+        :param alpha_v: coefficient that takes the value 0.6 when the shear
+                        plane passes through the unthreaded portion of the
+                        bar. When the shear plane passes through the threaded 
+                        portion of the bolt this coefficient is 0.6 for classes
+                        4.6~ 5.6 and 8.8 and 0.5 for classes 4.8, 5.8, 6.8 
+                        and 10.9. See table 3.4 of EN 1993-1-8 for more details.
+        :param gamma_M2: partial safety factor of the steel material according
+                         to paragraph (2) of clause 2.2 of EN 1993-1-8.
+        '''
+        FtRd= self.getUltimateTensileStrength()
+        FvRd= self.getUltimateShearStrength(alpha_v= alpha_v, gamma_M2= gamma_M2)
+        retval= Qd/FvRd+Td/(1.4*FtRd)
+        return retval
+        
     
 rebar04_S400B= Rebar(diam= 4e-3, steel= S400B) 
 rebar06_S400B= Rebar(diam= 6e-3, steel= S400B) 
