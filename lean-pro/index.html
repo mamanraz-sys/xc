@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StructPro – ניתוח קורות ומסגרות</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header>
+  <h1>StructPro <span>ניתוח קורות ומסגרות – שיטת הקשיחויות</span></h1>
+  <div class="header-actions">
+    <button class="btn btn-ghost" onclick="document.getElementById('import-input').click()">📂 טען</button>
+    <input type="file" id="import-input" accept=".json" style="display:none" onchange="importModel(this)">
+    <button class="btn btn-ghost" onclick="exportModel()">💾 שמור</button>
+    <button class="btn btn-success" id="analyze-btn">▶ נתח</button>
+    <button class="btn btn-ghost" id="clear-btn">🗑 נקה</button>
+  </div>
+</header>
+
+<div class="app-body">
+
+  <!-- Left Sidebar: Tools -->
+  <aside class="sidebar">
+
+    <div class="sidebar-section">
+      <h4>כלים</h4>
+      <div class="tool-grid">
+        <button class="tool-btn active" data-tool="select">
+          <span class="icon">↖</span>בחר / ערוך
+        </button>
+        <button class="tool-btn" data-tool="add_node">
+          <span class="icon">⊕</span>הוסף קשר
+        </button>
+        <button class="tool-btn" data-tool="add_element">
+          <span class="icon">╱</span>הוסף אלמנט
+        </button>
+        <button class="tool-btn" data-tool="add_support">
+          <span class="icon">△</span>הוסף תמיכה
+        </button>
+        <button class="tool-btn" data-tool="add_load">
+          <span class="icon">↓</span>עומס ריכוזי
+        </button>
+        <button class="tool-btn" data-tool="add_dist_load">
+          <span class="icon">▓</span>עומס מפורש
+        </button>
+      </div>
+    </div>
+
+    <!-- Support options -->
+    <div class="sidebar-section" id="support-options">
+      <h4>סוג תמיכה</h4>
+      <div class="option-group">
+        <label>סוג:
+          <select id="support-type-select">
+            <option value="pin">סמך (פין) – מונע x,y</option>
+            <option value="roller">סמך נייד (גלגל) – מונע y</option>
+            <option value="slider">Slide אנכי – מונע x</option>
+            <option value="fixed">איטום (קשיח) – מונע x,y,θ</option>
+            <option value="guided_y">איטום נייד אופקי – מונע x,θ</option>
+            <option value="guided_x">איטום נייד אנכי – מונע y,θ</option>
+            <option value="spring">סמך קפיץ</option>
+            <option value="free">חופשי</option>
+          </select>
+        </label>
+        <div id="spring-opts" style="display:none">
+          <label>Kx (kN/m): <input type="number" id="spring-kx" value="1000"></label>
+          <label>Ky (kN/m): <input type="number" id="spring-ky" value="1000"></label>
+          <label>Km (kNm/rad): <input type="number" id="spring-km" value="0"></label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Point load options -->
+    <div class="sidebar-section" id="load-options">
+      <h4>עומס ריכוזי</h4>
+      <div class="option-group">
+        <label>סוג:
+          <select id="load-type-select">
+            <option value="point_fy">כוח אנכי (kN)</option>
+            <option value="point_fx">כוח אופקי (kN)</option>
+            <option value="point_m">מומנט (kNm)</option>
+          </select>
+        </label>
+        <label>ערך (+ מעלה / ימין):
+          <input type="number" id="load-value-input" value="-10" step="1">
+        </label>
+        <label>מיקום על אלמנט (0–1):
+          <input type="number" id="load-pos-input" value="0.5" step="0.05" min="0" max="1">
+        </label>
+      </div>
+    </div>
+
+    <!-- Distributed load options -->
+    <div class="sidebar-section" id="dist-load-options">
+      <h4>עומס מפורש</h4>
+      <div class="option-group">
+        <label>w₁ – קצה I (kN/m):
+          <input type="number" id="dist-w1-input" value="-10" step="1">
+        </label>
+        <label>w₂ – קצה J (kN/m):
+          <input type="number" id="dist-w2-input" value="-10" step="1">
+        </label>
+        <small style="color:var(--text-muted); font-size:10px">
+          לעומס אחיד: w₁ = w₂<br>
+          לעומס טרפזי/משולש: w₁ ≠ w₂<br>
+          ערך שלילי = כלפי מטה
+        </small>
+      </div>
+    </div>
+
+    <!-- Presets -->
+    <div class="sidebar-section">
+      <h4>תצורות לדוגמה</h4>
+      <div class="preset-grid">
+        <button class="preset-btn" onclick="loadPreset('simple_beam')">
+          <span class="icon">╌</span>קורה פשוטה
+        </button>
+        <button class="preset-btn" onclick="loadPreset('cantilever')">
+          <span class="icon">┤</span>קורה בנוזית
+        </button>
+        <button class="preset-btn" onclick="loadPreset('continuous_beam')">
+          <span class="icon">═══</span>קורה מתמשכת
+        </button>
+        <button class="preset-btn" onclick="loadPreset('portal_frame')">
+          <span class="icon">⊓</span>מסגרת פורטל
+        </button>
+      </div>
+    </div>
+
+    <!-- Section defaults -->
+    <div class="section-defaults">
+      <h4>ברירות מחדל חתך</h4>
+      <label>E (kN/m²): <input type="number" id="def-E" value="30000"></label>
+      <label>A (m²): <input type="number" id="def-A" value="0.04" step="0.001"></label>
+      <label>I (m⁴): <input type="number" id="def-I" value="0.0003" step="0.0001"></label>
+    </div>
+
+    <!-- Snap -->
+    <div class="snap-row">
+      <input type="checkbox" id="snap-toggle" checked>
+      <label for="snap-toggle">הצמד לרשת (1m)</label>
+    </div>
+
+  </aside>
+
+  <!-- Canvas Area -->
+  <div class="canvas-area">
+    <div class="result-tabs">
+      <button class="result-tab" data-show="none">מודל בלבד</button>
+      <button class="result-tab active" data-show="bmd">דיאגרמת מומנטים (BMD)</button>
+      <button class="result-tab" data-show="sfd">דיאגרמת גזירה (SFD)</button>
+      <button class="result-tab" data-show="deflection">שקיעה</button>
+      <div class="scale-ctrl">
+        <span>קנ"מ תוצאות:</span>
+        <input type="range" id="result-scale" min="0.1" max="5" step="0.1" value="1.0">
+        <span id="result-scale-val">1.0</span>
+      </div>
+    </div>
+
+    <canvas id="main-canvas"></canvas>
+    <div id="status-bar">מוכן – בחר כלי להתחלה | גלגל עכבר: זום | לחיצה אמצעית + גרירה: הזזה</div>
+  </div>
+
+  <!-- Right Panel: Properties + Results -->
+  <aside class="right-panel">
+
+    <div id="properties-panel"></div>
+
+    <div class="loads-panel">
+      <h4>עומסים פעילים</h4>
+      <div id="loads-list"></div>
+    </div>
+
+    <div class="results-section">
+      <h4>תוצאות קשרים</h4>
+      <div class="results-table-wrapper">
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th>קשר</th>
+              <th>u (mm)</th>
+              <th>v (mm)</th>
+              <th>θ (°)</th>
+              <th>Rx (kN)</th>
+              <th>Ry (kN)</th>
+              <th>Rm (kNm)</th>
+            </tr>
+          </thead>
+          <tbody id="results-tbody">
+            <tr><td colspan="7" style="color:var(--text-muted);font-size:11px;padding:8px">לחץ "נתח" לקבלת תוצאות</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div style="padding:10px 12px; border-top:1px solid var(--border); font-size:10px; color:var(--text-muted); line-height:1.6">
+      <strong>מקרא:</strong><br>
+      u = תזוזה אופקית<br>
+      v = תזוזה אנכית<br>
+      θ = סיבוב<br>
+      Rx, Ry = ריאקציות<br>
+      Rm = מומנט תגובה<br>
+      <br>
+      <strong>ניווט:</strong><br>
+      גלגל = זום<br>
+      כפתור אמצעי + גרירה = הזזה
+    </div>
+  </aside>
+
+</div>
+
+<script src="js/analysis.js"></script>
+<script src="js/renderer.js"></script>
+<script src="js/app.js"></script>
+
+<script>
+  // Spring options toggle
+  document.getElementById('support-type-select')?.addEventListener('change', function() {
+    document.getElementById('spring-opts').style.display = this.value === 'spring' ? '' : 'none';
+    state.supportType = this.value;
+    if (this.value === 'spring') {
+      document.getElementById('spring-kx').addEventListener('input', e => state.springKx = +e.target.value);
+      document.getElementById('spring-ky').addEventListener('input', e => state.springKy = +e.target.value);
+      document.getElementById('spring-km').addEventListener('input', e => state.springKm = +e.target.value);
+    }
+  });
+</script>
+
+</body>
+</html>
